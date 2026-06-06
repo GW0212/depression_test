@@ -224,7 +224,13 @@ body {
 }
 
 @media (max-width: 640px) {
-  .intro-subtitle { white-space: normal !important; }
+  .intro-subtitle {
+    white-space: nowrap !important;
+    font-size: 11.5px !important;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .intro-cards {
@@ -629,7 +635,22 @@ body {
   border-radius: 6px;
   transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
 }
-.you-marker { font-size: 11px; color: var(--accent-violet); font-weight: 600; }
+.you-marker {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 12px;
+  color: var(--accent-violet);
+  font-weight: 700;
+  margin-top: 10px;
+  gap: 6px;
+}
+.you-marker::before {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(123,95,224,0.15);
+}
 
 /* 기관 정보 */
 .agency-grid { display: flex; flex-direction: column; gap: 12px; }
@@ -1066,7 +1087,7 @@ body {
   <!-- 헤더 -->
   <header class="header">
     <div class="header-left"></div>
-    <button class="logo" onclick="goHome()" type="button" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:11px;text-decoration:none;padding:0;">
+    <button class="logo" id="logo-btn" type="button" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:11px;text-decoration:none;padding:0;-webkit-tap-highlight-color:transparent;">
       <div class="logo-icon">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="38" height="38">
           <defs>
@@ -1176,7 +1197,7 @@ body {
   <!-- 결과 화면 -->
   <div id="screen-result" class="screen">
     <div class="result-hero">
-      <p class="result-label">30개 문항 진단 결과 보고서</p>
+      <p class="result-label">마음 진단 결과 보고서</p>
       <div class="score-ring-wrap">
         <svg class="score-ring" viewBox="0 0 120 120">
           <circle class="score-ring-bg" cx="60" cy="60" r="52"/>
@@ -1694,7 +1715,7 @@ function renderResult(score, grade, dateStr) {
       setTimeout(function() { barEl.style.width = '100%'; }, 300);
     }
   });
-  document.getElementById('you-marker').textContent = '▲ 현재 점수: ' + score + '점';
+  document.getElementById('you-marker').textContent = '내 점수  ' + score + '점';
 
   const sl = document.getElementById('symptom-list');
   sl.innerHTML = grade.symptoms.map(function(s) {
@@ -1967,7 +1988,7 @@ body{font-family:'Pretendard',sans-serif;background:#f0f4ff;width:820px;}
 
   <!-- 히어로 -->
   <div class="hero">
-    <p class="result-label">30개 문항 진단 결과 보고서</p>
+    <p class="result-label">마음 진단 결과 보고서</p>
     <div class="score-ring-wrap">
       <svg class="score-ring" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <circle fill="none" stroke="rgba(74,125,232,0.1)" stroke-width="10" cx="60" cy="60" r="52"/>
@@ -2089,7 +2110,29 @@ function showScreen(name) {
   });
 }
 
-function goHome() { showScreen('intro'); }
+function goHome() {
+  showScreen('intro');
+}
+
+// 로고 터치/클릭 모두 대응 (모바일 Safari 포함)
+(function() {
+  function bindLogo() {
+    var btn = document.getElementById('logo-btn');
+    if (!btn) return;
+    function handleGoHome(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      goHome();
+    }
+    btn.addEventListener('touchend', handleGoHome, { passive: false });
+    btn.addEventListener('click', handleGoHome);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindLogo);
+  } else {
+    bindLogo();
+  }
+})();
 
 </script>
 </body>
