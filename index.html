@@ -220,7 +220,11 @@ body {
   opacity: 0;
   animation: fadeInUp 0.7s 0.35s ease both;
   font-weight: 300;
-  white-space: nowrap;
+  white-space: nowrap;  /* PC에서 한 줄 */
+}
+
+@media (max-width: 640px) {
+  .intro-subtitle { white-space: normal !important; }
 }
 
 .intro-cards {
@@ -301,7 +305,7 @@ body {
 
 /* ─── 진단 화면 ─── */
 
-.progress-section { margin-bottom: 36px; }
+.progress-section { margin-bottom: 24px; }
 .progress-info {
   display: flex;
   justify-content: space-between;
@@ -458,6 +462,10 @@ body {
   color: var(--text-secondary);
   box-shadow: 0 2px 8px var(--shadow);
   flex: 1;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 .btn-prev:hover {
   border-color: var(--border-hover);
@@ -951,15 +959,19 @@ body {
   .btn-history { padding: 7px 14px; font-size: 12px; }
 
   /* 스크린 공통 */
-  .screen { padding: 32px 16px 48px; }
+  .screen { padding: 20px 16px 48px; }
 
   /* 인트로 */
-  #screen-intro { padding-top: 40px; }
-  .intro-title { font-size: clamp(28px, 8vw, 42px); }
-  .intro-subtitle { font-size: 13px; white-space: normal; text-align: center; }
-  .intro-cards { grid-template-columns: 1fr; gap: 10px; }
-  .intro-card { padding: 18px 16px; }
-  .btn-start { padding: 16px 40px; font-size: 15px; }
+  #screen-intro { padding-top: 24px; }
+  .intro-title { font-size: clamp(26px, 7.5vw, 40px); margin-bottom: 12px; }
+  .intro-subtitle { font-size: 13px; text-align: center; margin-bottom: 24px; }
+  /* intro-cards: 모바일에서 가로 3열 compact */
+  .intro-cards { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .intro-card { padding: 14px 10px; }
+  .intro-card-icon { font-size: 20px; margin-bottom: 8px; }
+  .intro-card-title { font-size: 12px; }
+  .intro-card-desc { font-size: 10px; line-height: 1.4; }
+  .btn-start { padding: 14px 36px; font-size: 15px; }
   .disclaimer { font-size: 11px; }
 
   /* 진단 화면 */
@@ -995,7 +1007,7 @@ body {
   .agency-item { flex-wrap: wrap; gap: 8px; padding: 12px 14px; }
   .agency-info { flex: 1; min-width: 0; }
   .agency-name { font-size: 12px; }
-  .agency-desc { font-size: 10px; }
+  .agency-desc { font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .agency-phone { font-size: 15px; padding: 6px 10px; }
 
   /* 호흡/감정 */
@@ -1054,7 +1066,7 @@ body {
   <!-- 헤더 -->
   <header class="header">
     <div class="header-left"></div>
-    <a class="logo" href="#" onclick="goHome(); return false;">
+    <button class="logo" onclick="goHome()" type="button" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:11px;text-decoration:none;padding:0;">
       <div class="logo-icon">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="38" height="38">
           <defs>
@@ -1074,7 +1086,7 @@ body {
         </svg>
       </div>
       <span class="logo-text">마음<span>진단</span></span>
-    </a>
+    </button>
     <div class="header-right">
       <button class="btn-history" onclick="openHistory()">📋 이전 결과</button>
     </div>
@@ -1528,7 +1540,10 @@ function renderQuestion() {
   const opts = document.querySelectorAll('.option-btn');
   opts.forEach((btn, i) => btn.classList.toggle('selected', answers[currentQ] === i + 1));
 
-  document.getElementById('btn-prev').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+  var prevBtn = document.getElementById('btn-prev');
+  prevBtn.style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+  prevBtn.style.opacity = currentQ === 0 ? '0' : '1';
+  prevBtn.style.pointerEvents = currentQ === 0 ? 'none' : 'auto';
   document.getElementById('btn-next').textContent = currentQ === 29 ? '결과 보기 ✨' : '다음 문항 →';
   document.getElementById('btn-next').disabled = answers[currentQ] === 0;
 }
@@ -2067,7 +2082,11 @@ body{font-family:'Pretendard',sans-serif;background:#f0f4ff;width:820px;}
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
   document.getElementById('screen-' + name).classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // 즉시 + smooth 양쪽 적용으로 모바일 스크롤 확실히 처리
+  window.scrollTo(0, 0);
+  requestAnimationFrame(function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 }
 
 function goHome() { showScreen('intro'); }
